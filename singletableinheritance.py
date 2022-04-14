@@ -57,11 +57,29 @@ session.add_all([company, engineer, manager])
 session.flush()
 session.commit()
 
+
+
+"""
+SELECT company.id AS company_id, company.name AS company_name 
+FROM company
+SELECT employee.id AS employee_id, employee.name AS employee_name, employee.type AS employee_type, employee.company_id AS employee_company_id 
+FROM employee 
+WHERE ? = employee.company_id
+"""
 company = session.query(Company).one() 
 print(company.employees) # select from company then select from employee where company.id = ?
 
+"""
+SELECT employee.id AS employee_id, employee.name AS employee_name, employee.type AS employee_type, employee.company_id AS employee_company_id 
+FROM employee
+"""
 employees = session.query(Employee).all() # select from employee table
 print(employees)
 
+"""
+SELECT employee.id AS employee_id, employee.name AS employee_name, employee.type AS employee_type, employee.company_id AS employee_company_id, employee.engineer_info AS employee_engineer_info 
+FROM employee 
+WHERE employee.type IN (?)
+"""
 engineers = session.query(Engineer).all() # select from employee table but where type = 'engineer'
 print(engineers)

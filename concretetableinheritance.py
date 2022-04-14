@@ -73,11 +73,32 @@ session.add_all([company, engineer, manager])
 session.flush()
 session.commit()
 
+"""
+SELECT company.id AS company_id, company.name AS company_name 
+FROM company
+SELECT pjoin.id AS pjoin_id, pjoin.name AS pjoin_name, pjoin.company_id AS pjoin_company_id, pjoin.type AS pjoin_type, pjoin.manager_data AS pjoin_manager_data, pjoin.engineer_info AS pjoin_engineer_info 
+FROM (SELECT employee.id AS id, employee.name AS name, employee.company_id AS company_id, CAST(NULL AS VARCHAR(40)) AS manager_data, CAST(NULL AS VARCHAR(40)) AS engineer_info, 'employee' AS type 
+FROM employee UNION ALL SELECT manager.id AS id, manager.name AS name, manager.company_id AS company_id, manager.manager_data AS manager_data, CAST(NULL AS VARCHAR(40)) AS engineer_info, 'manager' AS type 
+FROM manager UNION ALL SELECT engineer.id AS id, engineer.name AS name, engineer.company_id AS company_id, CAST(NULL AS VARCHAR(40)) AS manager_data, engineer.engineer_info AS engineer_info, 'engineer' AS type 
+FROM engineer) AS pjoin 
+"""
 company = session.query(Company).one() 
 print(company.employees) # select from company then union 2 tables and where company.id = ?
 
+"""
+SELECT pjoin.id AS pjoin_id, pjoin.name AS pjoin_name, pjoin.company_id AS pjoin_company_id, pjoin.type AS pjoin_type, pjoin.manager_data AS pjoin_manager_data, pjoin.engineer_info AS pjoin_engineer_info 
+FROM (SELECT employee.id AS id, employee.name AS name, employee.company_id AS company_id, CAST(NULL AS VARCHAR(40)) AS manager_data, CAST(NULL AS VARCHAR(40)) AS engineer_info, 'employee' AS type 
+FROM employee UNION ALL SELECT manager.id AS id, manager.name AS name, manager.company_id AS company_id, manager.manager_data AS manager_data, CAST(NULL AS VARCHAR(40)) AS engineer_info, 'manager' AS type 
+FROM manager UNION ALL SELECT engineer.id AS id, engineer.name AS name, engineer.company_id AS company_id, CAST(NULL AS VARCHAR(40)) AS manager_data, engineer.engineer_info AS engineer_info, 'engineer' AS type 
+FROM engineer) AS pjoin
+"""
 employees = session.query(Employee).all() # complicate union 2 tables
 print(employees)
 
+"""
+SELECT pjoin.id AS pjoin_id, pjoin.name AS pjoin_name, pjoin.engineer_info AS pjoin_engineer_info, pjoin.company_id AS pjoin_company_id, pjoin.type AS pjoin_type 
+FROM (SELECT engineer.id AS id, engineer.name AS name, engineer.engineer_info AS engineer_info, engineer.company_id AS company_id, 'engineer' AS type 
+FROM engineer) AS pjoin
+"""
 engineers = session.query(Engineer).all() # select from engineeer
 print(engineers)
