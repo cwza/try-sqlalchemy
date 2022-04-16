@@ -28,7 +28,7 @@ class Address(Base):
     email_address = Column(String(50), nullable=False)
     user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), index=True)
 
-    user = relationship("User", back_populates="addresses")
+    user = relationship("User", foreign_keys=[user_id], back_populates="addresses")
 
     def __repr__(self):
         return f'<Address(id={self.id}, email_address={self.email_address})>'

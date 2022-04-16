@@ -20,7 +20,7 @@ class Employee(Base):
     name = Column(String(50))
     type = Column(String(50))
     company_id = Column(ForeignKey('company.id'))
-    company = relationship("Company", back_populates="employees")
+    company = relationship("Company", foreign_keys=[company_id], back_populates="employees")
 
     __mapper_args__ = {
         'polymorphic_identity':'employee',

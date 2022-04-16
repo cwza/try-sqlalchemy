@@ -16,15 +16,13 @@ class Post(Base):
     __tablename__ = 'posts'
 
     id = Column(Integer, primary_key=True)
-    headline = Column(String(255), nullable=False)
     body = Column(Text)
 
     # keywords = relationship('PostKeyword', back_populates='post', cascade="all, delete, delete-orphan")
-    post_keywords = relationship('PostKeyword', back_populates='post', cascade="all, delete, delete-orphan")
+    post_keywords = relationship('PostKeyword', back_populates='post', cascade="all, delete-orphan")
     keywords = association_proxy('post_keywords', 'keyword', creator=lambda keyword: PostKeyword(keyword=keyword))
 
-    def __init__(self, headline, body):
-        self.headline = headline
+    def __init__(self, body):
         self.body = body
 
 class Keyword(Base):
@@ -34,7 +32,7 @@ class Keyword(Base):
     content = Column(String(50), nullable=False, unique=True)
 
     # posts = relationship('PostKeyword', back_populates='keyword', cascade="all, delete, delete-orphan")
-    post_keywords = relationship('PostKeyword', back_populates='keyword', cascade="all, delete, delete-orphan")
+    post_keywords = relationship('PostKeyword', back_populates='keyword', cascade="all, delete-orphan")
     posts = association_proxy('post_keywords', 'post')
 
     def __init__(self, content):
@@ -57,12 +55,16 @@ with engine.connect() as con:
 print(repr(Base.metadata.create_all(engine)))
 
 
-post = Post("Wendy's Blog Post", "This is a test")
-post.keywords = [Keyword('wendy'), Keyword('firstpost')]
-session.add(post)
+post1 = Post("post1")
+post1.keywords = [Keyword('wendy'), Keyword('firstpost')]
+post2 = Post("post2")
+post2.keywords = [post1.keywords[0]]
+session.add_all([post1, post2])
 session.commit()
 
-post = session.query(Post).filter_by(headline="Wendy's Blog Post").one()
-print(f"xxxxxxxxx: {post.keywords}")
-session.delete(post)
+post1 = session.query(Post).filter_by(body="post1").one()
+print(f"xxxxxxxxx: {post1.keywords}")
+
+session.delete(post1)
+# session.delete(post2)
 session.commit()
